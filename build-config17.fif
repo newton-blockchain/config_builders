@@ -1,0 +1,24 @@
+#!/usr/bin/fift -s
+"TonUtil.fif" include
+
+{ ."usage: " @' $0 type ." min-stake max-stake min-total-stake max-factor [<savefile>]" cr
+  ."Creates bag of cells suitable for uploading to TON config 17: conditions for participating in elections "
+  ."and saves it into <savefile>.boc ('config17.boc' by default)" cr 1 halt
+} : usage
+$# dup 4 < swap 5 > or ' usage if
+
+$1 parse-int Gram* =: min_stake
+$2 parse-int Gram* =: max_stake
+$3 parse-int Gram* =: min_total_stake
+$4 parse-int =: max_factor
+
+def? $5 { @' $5 } { "config17" } cond =: savefile
+max_factor 1 16 << * =: max_factor_as_fraction
+<b min_stake Gram, max_stake Gram, min_total_stake Gram, max_factor_as_fraction 32 u, b> =: config17
+."Config17 built: " cr
+config17 <s csr. cr
+config17 2 boc+>B 
+savefile +".boc" 
+tuck B>file
+."(Saved to file " type .")" cr
+

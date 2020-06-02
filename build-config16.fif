@@ -1,0 +1,22 @@
+#!/usr/bin/fift -s
+"TonUtil.fif" include
+
+{ ."usage: " @' $0 type ." max_validators_num max_main_validators_num min_validators [<savefile>]" cr
+  ."Creates bag of cells suitable for uploading to TON config 16: parameters of validator set "
+  ."and saves it into <savefile>.boc ('config16.boc' by default)" cr 1 halt
+} : usage
+$# dup 3 < swap 4 > or ' usage if
+
+$1 parse-int =: max_validators
+$2 parse-int =: max_main_validators
+$3 parse-int =: min_validators
+
+def? $4 { @' $4 } { "config16" } cond =: savefile
+<b max_validators 16 u, max_main_validators 16 u, min_validators 16 u, b> =: config16
+."Config16 built: " cr
+config16 <s csr. cr
+config16 2 boc+>B 
+savefile +".boc" 
+tuck B>file
+."(Saved to file " type .")" cr
+
