@@ -1,0 +1,45 @@
+#!/usr/bin/fift -s
+"TonUtil.fif" include
+
+{ ."usage: " @' $0 type ." actual_min_split min_split max_split [<savefile>]" cr
+  ."Creates bag of cells suitable for uploading to TON config 12: split parameters of basechain "
+  ."and saves it into <savefile>.boc ('config12.boc' by default)" cr 1 halt
+} : usage
+$# dup 3 < swap 4 > or ' usage if
+
+$1 parse-int =: actual_min_split
+$2 parse-int =: min_split
+$3 parse-int =: max_split
+
+def? $4 { @' $4 } { "config12" } cond =: savefile
+1573821854 =: enabled_since
+1 =: basic
+1 =: active
+1 =: accept_msgs
+0 =: flags
+B{55B13F6D0E1D0C34C9C2160F6F918E92D82BF9DDCF8DE2E4C94A3FDF39D15446} =: zerostate_root_hash
+B{EE0BEDFE4B32761FB35E9E1D8818EA720CAD1A0E7B4D2ED673C488E72E910342} =: zerostate_file_hash
+0 =: version
+
+
+<b 1 4 u, -1 32 i, 0 64 u, b> <s =: workchainFormat
+<b
+  0xa6 8 u,
+  enabled_since 32 u,
+  actual_min_split 8 u, min_split 8 u, max_split 8 u,
+  basic 1 u, active 1 u, accept_msgs 1 u, flags 13 u,
+  zerostate_root_hash B, zerostate_file_hash B,
+  version 32 u,
+  workchainFormat s,
+b> <s =: basechainDescr
+
+<b 1 1 u, basechainDescr 0 dictnew 32 udict! drop ref, b>
+=: config12
+
+."Config12 built: " cr
+config12 <s csr. cr
+config12 2 boc+>B 
+savefile +".boc" 
+tuck B>file
+."(Saved to file " type .")" cr
+
