@@ -1,0 +1,37 @@
+#!/usr/bin/fift -s
+"TonUtil.fif" include
+
+{ ."usage: " @' $0 type ." shuffle_mc_validators mc_catchain_lifetime shard_catchain_lifetime shard_validators_lifetime shard_validators_num [<savefile>]" cr
+  ."Creates bag of cells suitable for uploading to TON config 28: catchain config "
+  ."and saves it into <savefile>.boc ('config28.boc' by default)" cr 1 halt
+} : usage
+$# dup 5 < swap 7 > or ' usage if
+
+$1 parse-int =: shuffle_mc_validators
+$2 parse-int =: mc_catchain_lifetime
+$3 parse-int =: shard_catchain_lifetime
+$4 parse-int =: shard_validators_lifetime
+$5 parse-int =: shard_validators_num
+
+def? $6 { @' $6 } { "config28" } cond =: savefile
+
+
+<b
+  0xc2 8 u,
+  0 7 u,
+  shuffle_mc_validators 1 u,
+  mc_catchain_lifetime 32 u,
+  shard_catchain_lifetime 32 u,
+  shard_validators_lifetime 32 u,
+  shard_validators_num 32 u,
+b> =: config28
+
+."Config28 built: " cr
+."hash: " cr
+config28 hash 256 u>B Bx. cr
+config28 <s csr. cr
+config28 2 boc+>B 
+savefile +".boc" 
+tuck B>file
+."(Saved to file " type .")" cr
+
