@@ -37,6 +37,8 @@ b> <s =: basechainDescr
 =: config12
 
 ."Config12 built: " cr
+."hash: " cr
+config12 hash 256 u>B Bx. cr
 config12 <s csr. cr
 config12 2 boc+>B 
 savefile +".boc" 
