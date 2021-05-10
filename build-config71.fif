@@ -1,0 +1,44 @@
+#!/usr/bin/fift -s
+"TonUtil.fif" include
+
+{ ."usage: " @' $0 type ." flat_stake min_auth_num oracles_num oracle1_addr oracle2_addr .... [<savefile>]" cr
+  ."Creates bag of cells suitable for uploading to TON config 71: oracle set for cross-chain bridge "
+  ."and saves it into <savefile>.boc ('config28.boc' by default)" cr 1 halt
+} : usage
+$# 5 < ' usage if
+
+$1 parse-int =: flat_stake
+$2 parse-int =: min_auth_num
+$3 parse-int =: oracle_num
+now =: seqno
+dictnew 0
+
+{
+ dup dup 4 + $() 
+ 0 parse-load-address drop swap not abort"Oracle address should be defined on masterchain"
+ <b swap 256 u, b> <s swap  3 roll 16 udict! drop
+ swap 1+
+}
+oracle_num times
+
+swap =: oracles
+
+4 + dup
+$# = { @' $() } { "config71" } cond =: savefile
+
+
+<b
+  flat_stake Gram,
+  min_auth_num 16 u,
+  seqno 32 u,
+  oracles dict,
+b> =: config71
+
+."Config71 built: " cr
+."hash: " cr
+config71 hash 256 u>B Bx. cr
+config71 <s csr. cr
+config71 2 boc+>B 
+savefile +".boc" 
+tuck B>file
+."(Saved to file " type .")" cr
