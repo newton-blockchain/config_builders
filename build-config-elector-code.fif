@@ -1,0 +1,21 @@
+#!/usr/bin/fift -s
+"Asm.fif" include
+"TonUtil.fif" include
+"GetOpt.fif" include
+
+"elector" =: name
+"auto/elector-code.fif" =: src-file
+
+."Assembling new " name type ." smart contract code from " src-file type cr
+src-file include
+dup <s 12 u@ 0xFF0 <> abort"not valid smart contract code"
+<b swap ref, b> =: config1001
+
+."Config1001 built: " cr
+config1001 <s csr. cr
+config1001 2 boc+>B
+"1001.boc"
+tuck B>file
+."(Saved to file " type .")" cr
+
+// fift -s update-config.fif config-master <seqno> -1001 1001.boc
